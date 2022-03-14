@@ -14,9 +14,9 @@ def proceso(noProceso, env, ram, procesadores, llegada, numInstruc, solicitud, v
     
     yield env.timeout(llegada)
     llegadaProceso = env.now
-    print(f"[NEW] - Proceso No.{noProceso} llego en {llegada} y solicita {solicitud} de memoria RAM. |{ram.level} espacio disponible|")
+    print(f"[NEW] - Proceso No.{noProceso} llego en {llegada} y solicita {solicitud} de memoria RAM. |{ram.level} de RAM disponible|")
     yield ram.get(solicitud)
-    print(f"[ADMITTED] - Proceso No.{noProceso} recibio {solicitud}. |{ram.level} espacio disponible|")
+    print(f"[ADMITTED] - Proceso No.{noProceso} recibio {solicitud}. |{ram.level} de RAM disponible|")
     
     while numInstruc > 0:
         print(f"[READY] - Proceso No.{noProceso} tiene {numInstruc} pendientes.")
@@ -28,7 +28,7 @@ def proceso(noProceso, env, ram, procesadores, llegada, numInstruc, solicitud, v
             yield env.timeout(1)
             if numInstruc < 0:
                 numInstruc = 0
-            print(f"[RUNNING] - Se han ejecutado {finalizadas} instrucciones del Proceso No.{noProceso} tiene {numInstruc} pendientes. |{ram.level} espacio disponible|")
+            print(f"[RUNNING] - Se han ejecutado {finalizadas} instrucciones del Proceso No.{noProceso} tiene {numInstruc} pendientes. |{ram.level} de RAM disponible|")
             
             if numInstruc > 0:
                 watting = random.randint(1,2)
@@ -36,7 +36,7 @@ def proceso(noProceso, env, ram, procesadores, llegada, numInstruc, solicitud, v
                     print(f"[WATTING] - Proceso No.{noProceso} realizando operaciones I/O.")
                     yield env.timeout(1)
     yield ram.put(solicitud)
-    print(f"[TERMINATED] - Proceso No.{noProceso} termino sus instrucciones en {env.now}s, se dispone de {solicitud} mas de memoria. |{ram.level} espacio disponible|")
+    print("[TERMINATED] - Proceso No.{:.0f} termino sus instrucciones en {:.2f}s, se dispone de {:.0f} mas de memoria. |{:.0f} de RAM disponible|".format(noProceso,env.now,solicitud,ram.level))
     tiempos.append(env.now - llegada)
     tiempoTotal += (env.now - llegada)
     print("Proceso No.{:.0f} tardo {:.2f}s.".format(noProceso,env.now - llegada))
