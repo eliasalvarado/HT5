@@ -18,39 +18,38 @@ def proceso(noProceso, env, ram, procesadores, llegada, numInstruc, solicitud, v
     yield ram.get(solicitud)
     print(f"[ADMITTED] - Proceso No.{noProceso} recibio {solicitud}. |{ram.level} de RAM disponible|")
     
-    while numInstruc > 0:
+    while numInstruc != 0:
         print(f"[READY] - Proceso No.{noProceso} tiene {numInstruc} pendientes.")
         
         with procesadores.request() as req:
             yield req
-            finalizadas = velocidad
-            numInstruc -= finalizadas
-            yield env.timeout(1)
+            numInstruc -= velocidad
             if numInstruc < 0:
                 numInstruc = 0
-            print(f"[RUNNING] - Se han ejecutado {finalizadas} instrucciones del Proceso No.{noProceso} tiene {numInstruc} pendientes. |{ram.level} de RAM disponible|")
+            yield env.timeout(1)
+            print(f"[RUNNING] - Se han ejecutado {velocidad} instrucciones del Proceso No.{noProceso} tiene {numInstruc} pendientes. |{ram.level} de RAM disponible|")
             
-            if numInstruc > 0:
-                watting = random.randint(1,2)
-                if watting == 1:
-                    print(f"[WATTING] - Proceso No.{noProceso} realizando operaciones I/O.")
-                    yield env.timeout(1)
+        if numInstruc > 0:
+            wating = random.randint(1,2)
+            if wating == 1:
+                print(f"[WAITING] - Proceso No.{noProceso} realizando operaciones I/O.")
+                yield env.timeout(1)
     yield ram.put(solicitud)
     print("[TERMINATED] - Proceso No.{:.0f} termino sus instrucciones en {:.2f}s, se dispone de {:.0f} mas de memoria. |{:.0f} de RAM disponible|".format(noProceso,env.now,solicitud,ram.level))
-    tiempos.append(env.now - llegada)
-    tiempoTotal += (env.now - llegada)
-    print("Proceso No.{:.0f} tardo {:.2f}s.".format(noProceso,env.now - llegada))
+    tiempos.append(env.now - llegadaProceso)
+    tiempoTotal += (env.now - llegadaProceso)
+    print("Proceso No.{:.0f} tardo {:.2f}s.".format(noProceso,env.now - llegadaProceso))
 
-random.seed(100)
+random.seed(213)
 
 tiempoTotal = 0
 tiempos = []
 #------------------
-numProcesos = 25
-velocidad = 3
-capacidadRam = 100
-numProcesadores = 1
-intervalos = 10
+numProcesos = 200    #Numero de procesos
+velocidad = 3       #Cantidad de procesos que realiza en un tiempo
+capacidadRam = 100  #Capacidad de la RAM
+numProcesadores = 2 #Numero de CPUs
+intervalos = 1     #Llegada de los procesos
 #-----------------
 env = simpy.Environment()
 ram = simpy.Container(env, init = capacidadRam, capacity = capacidadRam)
